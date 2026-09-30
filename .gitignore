@@ -67,3 +67,13 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# JetBrains files
+.idea/
+
+# sqlite example
+/sqlite.mlir
+/sqlite/
+
+# Analysis output
+/output.mlir
