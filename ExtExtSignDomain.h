@@ -1,15 +1,19 @@
-//===- ZeroDomain.h - The abstract domain ---------------------------------===//
+//===- ExtExtSignDomain.h - The abstract domain --------------------------===//
 //
-// A four-point lattice recording whether an integer value is known to be zero.
+// A nine-point lattice recording the sign of an integer value, with some
+// additional values.
 //
-//        Top          nothing is known
-//       /   \
-//    Zero  NonZero
-//       \   /
-//       Bottom       unreachable, or not yet analyzed
+//           Top
+//          /   \
+//         0-   0+
+//        /  \ /  \
+//       -    0    +
+//        \   |   /
+//        -1  |  1
+//          \ | /
+//           Bot
 //
-// This is the file to replace first when building a different analysis.  MLIR's
-// dataflow framework asks only three things of a lattice value:
+// MLIR's dataflow framework asks only three things of a lattice value:
 //
 //   * a default constructor, which must produce the bottom element, because the
 //     solver starts every value optimistically and lowers it as facts arrive;
@@ -19,12 +23,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef ZERO_DOMAIN_H
-#define ZERO_DOMAIN_H
+#ifndef EXTEXTSIGN_DOMAIN_H
+#define EXTEXTSIGN_DOMAIN_H
 
 #include "llvm/Support/raw_ostream.h"
 
-namespace zero {
+namespace extextsign {
 
 enum class Kind { Bottom, Zero, NonZero, Top };
 
@@ -42,14 +46,14 @@ inline const char *name(Kind kind) {
   return "top";
 }
 
-struct ZeroState {
+struct ExtExtSignState {
   Kind kind = Kind::Bottom;
 
-  ZeroState() = default;
-  /* implicit */ ZeroState(Kind kind) : kind(kind) {}
+  ExtExtSignState() = default;
+  /* implicit */ ExtExtSignState(Kind kind) : kind(kind) {}
 
-  static ZeroState bottom() { return Kind::Bottom; }
-  static ZeroState top() { return Kind::Top; }
+  static ExtExtSignState bottom() { return Kind::Bottom; }
+  static ExtExtSignState top() { return Kind::Top; }
 
   bool isBottom() const { return kind == Kind::Bottom; }
 
@@ -71,11 +75,11 @@ struct ZeroState {
 };
 
 inline llvm::raw_ostream &operator<<(llvm::raw_ostream &os,
-                                     const ZeroState &state) {
+                                     const ExtExtSignState &state) {
   state.print(os);
   return os;
 }
 
-} // namespace zero
+} // namespace extextsign
 
 #endif

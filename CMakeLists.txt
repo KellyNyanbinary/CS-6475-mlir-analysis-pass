@@ -100,7 +100,7 @@ add_definitions(${LLVM_DEFINITIONS})
 # ask CMake via $<TARGET_FILE:ZeroAnalysis>, or let run.sh probe for it.
 #===----------------------------------------------------------------------===#
 add_llvm_library(ZeroAnalysis MODULE PARTIAL_SOURCES_INTENDED
-  ZeroAnalysis.cpp
+        ExtExtSignAnalysis.cpp
   Annotate.cpp
   Plugin.cpp
   PLUGIN_TOOL mlir-opt

@@ -12,23 +12,23 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "ZeroAnalysis.h"
+#include "ExtExtSignAnalysis.h"
 
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/IR/Matchers.h"
 
 using namespace mlir;
 
-namespace zero {
+namespace extextsign {
 
-void ZeroAnalysis::setToEntryState(ZeroLattice *lattice) {
-  propagateIfChanged(lattice, lattice->join(ZeroState::top()));
+void ExtExtSignAnalysis::setToEntryState(ExtExtSignLattice *lattice) {
+  propagateIfChanged(lattice, lattice->join(ExtExtSignState::top()));
 }
 
 LogicalResult
-ZeroAnalysis::visitOperation(Operation *op,
-                             ArrayRef<const ZeroLattice *> operands,
-                             ArrayRef<ZeroLattice *> results) {
+ExtExtSignAnalysis::visitOperation(Operation *op,
+                                   ArrayRef<const ExtExtSignLattice *> operands,
+                                   ArrayRef<ExtExtSignLattice *> results) {
   // Raising a result to top says "this operation could produce anything",
   // which is always a sound answer and is what every unhandled case does.
   auto unknown = [&] {
@@ -40,14 +40,14 @@ ZeroAnalysis::visitOperation(Operation *op,
   // floats, and vectors all land in `unknown`.
   if (op->getNumResults() != 1 || !op->getResult(0).getType().isIntOrIndex())
     return unknown();
-  ZeroLattice *result = results[0];
+  ExtExtSignLattice *result = results[0];
 
   // Rule 1: a constant is zero or nonzero according to what it says.
   // This is the only rule that does not consult its operands, and without some
   // rule of this kind the analysis would have no facts to propagate at all.
   IntegerAttr value;
   if (matchPattern(op, m_Constant(&value))) {
-    ZeroState state = value.getValue().isZero() ? Kind::Zero : Kind::NonZero;
+    ExtExtSignState state = value.getValue().isZero() ? Kind::Zero : Kind::Top;
     propagateIfChanged(result, result->join(state));
     return success();
   }
@@ -74,4 +74,4 @@ ZeroAnalysis::visitOperation(Operation *op,
   return unknown();
 }
 
-} // namespace zero
+} // namespace extextsign

@@ -1,17 +1,18 @@
-//===- ZeroAnalysis.h - Sparse forward analysis over ZeroState ------------===//
+//===- ExtExtSignAnalysis.h - Sparse forward analysis over ExtExtSignState
+//-===//
 
-#ifndef ZERO_ANALYSIS_H
-#define ZERO_ANALYSIS_H
+#ifndef EXTEXTSIGN_ANALYSIS_H
+#define EXTEXTSIGN_ANALYSIS_H
 
 #include "ExtExtSignDomain.h"
 #include "mlir/Analysis/DataFlow/SparseAnalysis.h"
 
-namespace zero {
+namespace extextsign {
 
-using ZeroLattice = mlir::dataflow::Lattice<ZeroState>;
+using ExtExtSignLattice = mlir::dataflow::Lattice<ExtExtSignState>;
 
-class ZeroAnalysis
-    : public mlir::dataflow::SparseForwardDataFlowAnalysis<ZeroLattice> {
+class ExtExtSignAnalysis
+    : public mlir::dataflow::SparseForwardDataFlowAnalysis<ExtExtSignLattice> {
 public:
   using SparseForwardDataFlowAnalysis::SparseForwardDataFlowAnalysis;
 
@@ -19,14 +20,14 @@ public:
   /// its results.  Must be monotone in the operand states.
   mlir::LogicalResult
   visitOperation(mlir::Operation *op,
-                 llvm::ArrayRef<const ZeroLattice *> operands,
-                 llvm::ArrayRef<ZeroLattice *> results) override;
+                 llvm::ArrayRef<const ExtExtSignLattice *> operands,
+                 llvm::ArrayRef<ExtExtSignLattice *> results) override;
 
   /// The state of anything entering the analysis from outside: function
   /// arguments, and results the transfer function declines to reason about.
-  void setToEntryState(ZeroLattice *lattice) override;
+  void setToEntryState(ExtExtSignLattice *lattice) override;
 };
 
-} // namespace zero
+} // namespace extextsign
 
 #endif
