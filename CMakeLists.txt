@@ -16,7 +16,7 @@ if(NOT MLIR_DIR)
     NAMES llvm-config
           llvm-config-22 llvm-config-21 llvm-config-20
           llvm-config-19 llvm-config-18 llvm-config-17
-    HINTS /opt/homebrew/opt/llvm/bin /usr/local/opt/llvm/bin /home/linuxbrew/.linuxbrew/opt/llvm/bin
+    HINTS /opt/homebrew/opt/llvm/bin /usr/local/opt/llvm/bin
     DOC "llvm-config used to locate MLIR's CMake package")
 
   if(LLVM_CONFIG_EXECUTABLE)
