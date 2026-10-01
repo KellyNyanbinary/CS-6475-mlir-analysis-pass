@@ -31,34 +31,34 @@
 namespace extextsign {
 
 enum class Kind {
-  Bottom,
-  NegOne,
-  PosOne,
-  Zero,
-  Neg,
-  Pos,
-  NegZero, // <= 0, non-positive
-  PosZero, // >= 0, non-negative
+  Bot,
+  NOn, // negative one
+  POn, // positive one
+  Zer, // zero
+  Neg, // negative
+  Pos, // positive
+  NPs, // <= 0, non-positive
+  NNg, // >= 0, non-negative
   Top
 };
 
 inline const char *name(Kind kind) {
   switch (kind) {
-  case Kind::Bottom:
+  case Kind::Bot:
     return "bottom";
-  case Kind::NegOne:
+  case Kind::NOn:
     return "negative one";
-  case Kind::PosOne:
+  case Kind::POn:
     return "positive one";
-  case Kind::Zero:
+  case Kind::Zer:
     return "zero";
   case Kind::Neg:
     return "negative";
   case Kind::Pos:
     return "positive";
-  case Kind::NegZero:
+  case Kind::NPs:
     return "non-positive";
-  case Kind::PosZero:
+  case Kind::NNg:
     return "non-negative";
   case Kind::Top:
     return "top";
@@ -67,43 +67,36 @@ inline const char *name(Kind kind) {
 }
 
 struct ExtExtSignState {
-  Kind kind = Kind::Bottom;
+  Kind kind = Kind::Bot;
 
   ExtExtSignState() = default;
   /* implicit */ ExtExtSignState(Kind kind) : kind(kind) {}
 
-  static ExtExtSignState bottom() { return Kind::Bottom; }
+  static ExtExtSignState bottom() { return Kind::Bot; }
   static ExtExtSignState top() { return Kind::Top; }
 
-  bool isBottom() const { return kind == Kind::Bottom; }
+  bool isBottom() const { return kind == Kind::Bot; }
 
   /// Least upper bound.
   static ExtExtSignState join(const ExtExtSignState &lhs,
                               const ExtExtSignState &rhs) {
+    // clang-format off
     // Axis order:
-    // [0] = Bottom,  [1] = NegOne,  [2] = PosOne,
-    // [3] = Zero,    [4] = Neg,     [5] = Pos,
-    // [6] = NegZero, [7] = PosZero, [8] = Top
+    // [0] = Bottom, [1] = NegOne, [2] = PosOne,
+    // [3] = Zero,   [4] = Neg,    [5] = Pos,
+    // [6] = NonPos, [7] = NonNeg, [8] = Top
     constexpr Kind join_table[9][9] = {
-        {Kind::Bottom, Kind::NegOne, Kind::PosOne, Kind::Zero, Kind::Neg,
-         Kind::Pos, Kind::NegZero, Kind::PosZero, Kind::Top},
-        {Kind::NegOne, Kind::NegOne, Kind::Top, Kind::NegZero, Kind::Neg,
-         Kind::Top, Kind::NegZero, Kind::Top, Kind::Top},
-        {Kind::PosOne, Kind::Top, Kind::PosOne, Kind::PosZero, Kind::Top,
-         Kind::Pos, Kind::Top, Kind::PosZero, Kind::Top},
-        {Kind::Zero, Kind::NegZero, Kind::PosZero, Kind::Zero, Kind::NegZero,
-         Kind::PosZero, Kind::NegZero, Kind::PosZero, Kind::Top},
-        {Kind::Neg, Kind::Neg, Kind::Top, Kind::NegZero, Kind::Neg, Kind::Top,
-         Kind::NegZero, Kind::Top, Kind::Top},
-        {Kind::Pos, Kind::Top, Kind::Pos, Kind::PosZero, Kind::Top, Kind::Pos,
-         Kind::Top, Kind::PosZero, Kind::Top},
-        {Kind::NegZero, Kind::NegZero, Kind::Top, Kind::NegZero, Kind::NegZero,
-         Kind::Top, Kind::NegZero, Kind::Top, Kind::Top},
-        {Kind::PosZero, Kind::Top, Kind::PosZero, Kind::PosZero, Kind::Top,
-         Kind::PosZero, Kind::Top, Kind::PosZero, Kind::Top},
-        {Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
-         Kind::Top, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::NOn, Kind::POn, Kind::Zer, Kind::Neg, Kind::Pos, Kind::NPs, Kind::NNg, Kind::Top},
+        {Kind::NOn, Kind::NOn, Kind::Top, Kind::NPs, Kind::Neg, Kind::Top, Kind::NPs, Kind::Top, Kind::Top},
+        {Kind::POn, Kind::Top, Kind::POn, Kind::NNg, Kind::Top, Kind::Pos, Kind::Top, Kind::NNg, Kind::Top},
+        {Kind::Zer, Kind::NPs, Kind::NNg, Kind::Zer, Kind::NPs, Kind::NNg, Kind::NPs, Kind::NNg, Kind::Top},
+        {Kind::Neg, Kind::Neg, Kind::Top, Kind::NPs, Kind::Neg, Kind::Top, Kind::NPs, Kind::Top, Kind::Top},
+        {Kind::Pos, Kind::Top, Kind::Pos, Kind::NNg, Kind::Top, Kind::Pos, Kind::Top, Kind::NNg, Kind::Top},
+        {Kind::NPs, Kind::NPs, Kind::Top, Kind::NPs, Kind::NPs, Kind::Top, Kind::NPs, Kind::Top, Kind::Top},
+        {Kind::NNg, Kind::Top, Kind::NNg, Kind::NNg, Kind::Top, Kind::NNg, Kind::Top, Kind::NNg, Kind::Top},
+        {Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top},
     };
+    // clang-format on
 
     int lhs_index = static_cast<int>(lhs.kind);
     int rhs_index = static_cast<int>(rhs.kind);

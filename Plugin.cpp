@@ -56,7 +56,7 @@ struct ExtExtSignAnalysisPass
         return {};
       extextsign::Kind kind = lattice->getValue().kind;
       // Top and bottom say nothing; printing them would bury the real facts.
-      if (kind == extextsign::Kind::Top || kind == extextsign::Kind::Bottom)
+      if (kind == extextsign::Kind::Top || kind == extextsign::Kind::Bot)
         return {};
       std::string description;
       llvm::raw_string_ostream os(description);

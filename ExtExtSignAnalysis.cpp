@@ -52,19 +52,19 @@ ExtExtSignAnalysis::visitOperation(Operation *op,
     ExtExtSignState state;
 
     if (value.getValue().isZero())
-      state = ExtExtSignState(Kind::Zero);
+      state = ExtExtSignState(Kind::Zer);
     else if (value.getValue().isAllOnes())
-      state = Kind::NegOne;
+      state = Kind::NOn;
     else if (value.getValue().isOne())
-      state = Kind::PosOne;
+      state = Kind::POn;
     else if (value.getValue().isNegative())
       state = Kind::Neg;
     else if (value.getValue().isStrictlyPositive())
       state = Kind::Pos;
     else if (value.getValue().isNonPositive())
-      state = Kind::NegZero;
+      state = Kind::NPs;
     else if (value.getValue().isNonNegative())
-      state = Kind::PosZero;
+      state = Kind::NNg;
     else
       state = Kind::Top;
 
@@ -77,30 +77,23 @@ ExtExtSignAnalysis::visitOperation(Operation *op,
   if (isa<LLVM::AddOp>(op)) {
     std::cout << "Performing abstract +\n";
 
+    // clang-format off
     // Axis order:
-    // [0] = Bottom,  [1] = NegOne,  [2] = PosOne,
-    // [3] = Zero,    [4] = Neg,     [5] = Pos,
-    // [6] = NegZero, [7] = PosZero, [8] = Top
+    // [0] = Bottom, [1] = NegOne, [2] = PosOne,
+    // [3] = Zero,   [4] = Neg,    [5] = Pos,
+    // [6] = NonPos, [7] = NonNeg, [8] = Top
     constexpr Kind add_table[9][9] = {
-        {Kind::Bottom, Kind::Bottom, Kind::Bottom, Kind::Bottom, Kind::Bottom,
-         Kind::Bottom, Kind::Bottom, Kind::Bottom, Kind::Bottom},
-        {Kind::Bottom, Kind::Neg, Kind::Zero, Kind::NegOne, Kind::Neg,
-         Kind::PosZero, Kind::Neg, Kind::Top, Kind::Top},
-        {Kind::Bottom, Kind::Zero, Kind::Pos, Kind::PosOne, Kind::NegZero,
-         Kind::Pos, Kind::Top, Kind::Pos, Kind::Top},
-        {Kind::Bottom, Kind::NegOne, Kind::PosOne, Kind::Zero, Kind::Neg,
-         Kind::Pos, Kind::NegZero, Kind::PosZero, Kind::Top},
-        {Kind::Bottom, Kind::Neg, Kind::NegZero, Kind::Neg, Kind::Neg,
-         Kind::Top, Kind::Neg, Kind::Top, Kind::Top},
-        {Kind::Bottom, Kind::PosZero, Kind::Pos, Kind::Pos, Kind::Top,
-         Kind::Pos, Kind::Top, Kind::Pos, Kind::Top},
-        {Kind::Bottom, Kind::Neg, Kind::Top, Kind::NegZero, Kind::Neg,
-         Kind::Top, Kind::NegZero, Kind::Top, Kind::Top},
-        {Kind::Bottom, Kind::Top, Kind::Pos, Kind::PosZero, Kind::Top,
-         Kind::Pos, Kind::Top, Kind::PosZero, Kind::Top},
-        {Kind::Bottom, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
-         Kind::Top, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot},
+        {Kind::Bot, Kind::Neg, Kind::Zer, Kind::NOn, Kind::Neg, Kind::NNg, Kind::Neg, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Zer, Kind::Pos, Kind::POn, Kind::NPs, Kind::Pos, Kind::Top, Kind::Pos, Kind::Top},
+        {Kind::Bot, Kind::NOn, Kind::POn, Kind::Zer, Kind::Neg, Kind::Pos, Kind::NPs, Kind::NNg, Kind::Top},
+        {Kind::Bot, Kind::Neg, Kind::NPs, Kind::Neg, Kind::Neg, Kind::Top, Kind::Neg, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::NNg, Kind::Pos, Kind::Pos, Kind::Top, Kind::Pos, Kind::Top, Kind::Pos, Kind::Top},
+        {Kind::Bot, Kind::Neg, Kind::Top, Kind::NPs, Kind::Neg, Kind::Top, Kind::NPs, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::Pos, Kind::NNg, Kind::Top, Kind::Pos, Kind::Top, Kind::NNg, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top},
     };
+    // clang-format on
 
     ExtExtSignState lhs = operands[0]->getValue();
     ExtExtSignState rhs = operands[1]->getValue();
@@ -115,31 +108,24 @@ ExtExtSignAnalysis::visitOperation(Operation *op,
   // Where we are going, we don't care about underflows.
   if (isa<LLVM::SubOp>(op)) {
     std::cout << "Performing abstract -\n";
-    
+
+    // clang-format off
     // Axis order:
-    // [0] = Bottom,  [1] = NegOne,  [2] = PosOne,
-    // [3] = Zero,    [4] = Neg,     [5] = Pos,
-    // [6] = NegZero, [7] = PosZero, [8] = Top
+    // [0] = Bottom, [1] = NegOne, [2] = PosOne,
+    // [3] = Zero,   [4] = Neg,    [5] = Pos,
+    // [6] = NonPos, [7] = NonNeg, [8] = Top
     constexpr Kind sub_table[9][9] = {
-        {Kind::Bottom, Kind::Bottom, Kind::Bottom, Kind::Bottom, Kind::Bottom,
-         Kind::Bottom, Kind::Bottom, Kind::Bottom, Kind::Bottom},
-        {Kind::Bottom, Kind::Zero, Kind::Neg, Kind::NegOne, Kind::PosZero,
-         Kind::Neg, Kind::Top, Kind::Neg, Kind::Top},
-        {Kind::Bottom, Kind::Pos, Kind::Zero, Kind::PosOne, Kind::Pos,
-         Kind::NegZero, Kind::Pos, Kind::Top, Kind::Top},
-        {Kind::Bottom, Kind::PosOne, Kind::NegOne, Kind::Zero, Kind::Pos,
-         Kind::Neg, Kind::PosZero, Kind::NegZero, Kind::Top},
-        {Kind::Bottom, Kind::NegZero, Kind::Neg, Kind::Neg, Kind::Top,
-         Kind::Neg, Kind::Top, Kind::Neg, Kind::Top},
-        {Kind::Bottom, Kind::Pos, Kind::PosZero, Kind::Pos, Kind::Pos,
-         Kind::Top, Kind::Pos, Kind::Top, Kind::Top},
-        {Kind::Bottom, Kind::Top, Kind::Neg, Kind::NegZero, Kind::Top,
-         Kind::Neg, Kind::Top, Kind::NegZero, Kind::Top},
-        {Kind::Bottom, Kind::Pos, Kind::Top, Kind::PosZero, Kind::Pos,
-         Kind::Top, Kind::PosZero, Kind::Top, Kind::Top},
-        {Kind::Bottom, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
-         Kind::Top, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot},
+        {Kind::Bot, Kind::Zer, Kind::Neg, Kind::NOn, Kind::NNg, Kind::Neg, Kind::Top, Kind::Neg, Kind::Top},
+        {Kind::Bot, Kind::Pos, Kind::Zer, Kind::POn, Kind::Pos, Kind::NPs, Kind::Pos, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::POn, Kind::NOn, Kind::Zer, Kind::Pos, Kind::Neg, Kind::NNg, Kind::NPs, Kind::Top},
+        {Kind::Bot, Kind::NPs, Kind::Neg, Kind::Neg, Kind::Top, Kind::Neg, Kind::Top, Kind::Neg, Kind::Top},
+        {Kind::Bot, Kind::Pos, Kind::NNg, Kind::Pos, Kind::Pos, Kind::Top, Kind::Pos, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::Neg, Kind::NPs, Kind::Top, Kind::Neg, Kind::Top, Kind::NPs, Kind::Top},
+        {Kind::Bot, Kind::Pos, Kind::Top, Kind::NNg, Kind::Pos, Kind::Top, Kind::NNg, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top},
     };
+    // clang-format on
 
     ExtExtSignState lhs = operands[0]->getValue();
     ExtExtSignState rhs = operands[1]->getValue();
