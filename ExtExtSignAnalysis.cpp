@@ -53,10 +53,10 @@ ExtExtSignAnalysis::visitOperation(Operation *op,
 
     if (value.getValue().isZero())
       state = ExtExtSignState(Kind::Zero);
-    else if (value.getValue().isOne())
-      state = Kind::PosOne;
     else if (value.getValue().isAllOnes())
       state = Kind::NegOne;
+    else if (value.getValue().isOne())
+      state = Kind::PosOne;
     else if (value.getValue().isNegative())
       state = Kind::Neg;
     else if (value.getValue().isStrictlyPositive())
