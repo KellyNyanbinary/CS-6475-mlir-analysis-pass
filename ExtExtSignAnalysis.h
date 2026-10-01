@@ -3,7 +3,7 @@
 #ifndef ZERO_ANALYSIS_H
 #define ZERO_ANALYSIS_H
 
-#include "ZeroDomain.h"
+#include "ExtExtSignDomain.h"
 #include "mlir/Analysis/DataFlow/SparseAnalysis.h"
 
 namespace zero {
