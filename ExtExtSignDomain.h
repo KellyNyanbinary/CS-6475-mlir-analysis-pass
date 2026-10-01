@@ -47,19 +47,19 @@ inline const char *name(Kind kind) {
   case Kind::Bottom:
     return "bottom";
   case Kind::NegOne:
-    return "negone";
+    return "negative one";
   case Kind::PosOne:
-    return "posone";
+    return "positive one";
   case Kind::Zero:
     return "zero";
   case Kind::Neg:
-    return "neg";
+    return "negative";
   case Kind::Pos:
-    return "pos";
+    return "positive";
   case Kind::NegZero:
-    return "negzero";
+    return "non-positive";
   case Kind::PosZero:
-    return "poszero";
+    return "non-negative";
   case Kind::Top:
     return "top";
   }
