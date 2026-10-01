@@ -14,6 +14,7 @@
 
 #include "ExtExtSignAnalysis.h"
 
+#include "ExtExtSignDomain.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/IR/Matchers.h"
 
@@ -42,9 +43,6 @@ ExtExtSignAnalysis::visitOperation(Operation *op,
     return unknown();
   ExtExtSignLattice *result = results[0];
 
-  // Rule 1: a constant is zero or nonzero according to what it says.
-  // This is the only rule that does not consult its operands, and without some
-  // rule of this kind the analysis would have no facts to propagate at all.
   IntegerAttr value;
   if (matchPattern(op, m_Constant(&value))) {
     ExtExtSignState state = value.getValue().isZero() ? Kind::Zero : Kind::Top;

@@ -30,16 +30,36 @@
 
 namespace extextsign {
 
-enum class Kind { Bottom, Zero, NonZero, Top };
+enum class Kind {
+  Bottom,
+  NegOne,
+  PosOne,
+  Zero,
+  Neg,
+  Pos,
+  NegZero, // <= 0, non-positive
+  PosZero, // >= 0, non-negative
+  Top
+};
 
 inline const char *name(Kind kind) {
   switch (kind) {
   case Kind::Bottom:
     return "bottom";
+  case Kind::NegOne:
+    return "negone";
+  case Kind::PosOne:
+    return "posone";
   case Kind::Zero:
     return "zero";
-  case Kind::NonZero:
-    return "nonzero";
+  case Kind::Neg:
+    return "neg";
+  case Kind::Pos:
+    return "pos";
+  case Kind::NegZero:
+    return "negzero";
+  case Kind::PosZero:
+    return "poszero";
   case Kind::Top:
     return "top";
   }
@@ -57,19 +77,45 @@ struct ExtExtSignState {
 
   bool isBottom() const { return kind == Kind::Bottom; }
 
-  /// Least upper bound.  Two disagreeing facts lose all information.
-  static ZeroState join(const ZeroState &lhs, const ZeroState &rhs) {
-    if (lhs.kind == Kind::Bottom)
-      return rhs;
-    if (rhs.kind == Kind::Bottom)
-      return lhs;
-    if (lhs.kind == rhs.kind)
-      return lhs;
-    return top();
-  }
+  /// Least upper bound.
+  static ExtExtSignState join(const ExtExtSignState &lhs,
+                              const ExtExtSignState &rhs) {
+    // Axis order:
+    // [0] = Bottom,  [1] = NegOne,  [2] = PosOne,
+    // [3] = Zero,    [4] = Neg,     [5] = Pos,
+    // [6] = NegZero, [7] = PosZero, [8] = Top
+    constexpr Kind join_table[9][9] = {
+        {Kind::Bottom, Kind::NegOne, Kind::PosOne, Kind::Zero, Kind::Neg,
+         Kind::Pos, Kind::NegZero, Kind::PosZero, Kind::Top},
+        {Kind::NegOne, Kind::NegOne, Kind::Top, Kind::NegZero, Kind::Neg,
+         Kind::Top, Kind::NegZero, Kind::Top, Kind::Top},
+        {Kind::PosOne, Kind::Top, Kind::PosOne, Kind::PosZero, Kind::Top,
+         Kind::Pos, Kind::Top, Kind::PosZero, Kind::Top},
+        {Kind::Zero, Kind::NegZero, Kind::PosZero, Kind::Zero, Kind::NegZero,
+         Kind::PosZero, Kind::NegZero, Kind::PosZero, Kind::Top},
+        {Kind::Neg, Kind::Neg, Kind::Top, Kind::NegZero, Kind::Neg, Kind::Top,
+         Kind::NegZero, Kind::Top, Kind::Top},
+        {Kind::Pos, Kind::Top, Kind::Pos, Kind::PosZero, Kind::Top, Kind::Pos,
+         Kind::Top, Kind::PosZero, Kind::Top},
+        {Kind::NegZero, Kind::NegZero, Kind::Top, Kind::NegZero, Kind::NegZero,
+         Kind::Top, Kind::NegZero, Kind::Top, Kind::Top},
+        {Kind::PosZero, Kind::Top, Kind::PosZero, Kind::PosZero, Kind::Top,
+         Kind::PosZero, Kind::Top, Kind::PosZero, Kind::Top},
+        {Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
+         Kind::Top, Kind::Top, Kind::Top},
+    };
 
-  bool operator==(const ZeroState &other) const { return kind == other.kind; }
-  bool operator!=(const ZeroState &other) const { return kind != other.kind; }
+    int lhs_index = static_cast<int>(lhs.kind);
+    int rhs_index = static_cast<int>(rhs.kind);
+    return join_table[lhs_index][rhs_index];
+  };
+
+  bool operator==(const ExtExtSignState &other) const {
+    return kind == other.kind;
+  }
+  bool operator!=(const ExtExtSignState &other) const {
+    return kind != other.kind;
+  }
 
   void print(llvm::raw_ostream &os) const { os << name(kind); }
 };
