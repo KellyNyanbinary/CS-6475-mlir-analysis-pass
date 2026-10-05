@@ -22,12 +22,12 @@ define i32 @main() #0 {
   %10 = load i32, ptr %3, align 4
   %11 = or i32 %9, %10
   store i32 %11, ptr %6, align 4
-  %12 = load i32, ptr %2, align 4
-  %13 = load i32, ptr %3, align 4
+  %12 = load i32, ptr %4, align 4
+  %13 = load i32, ptr %5, align 4
   %14 = or i32 %12, %13
   store i32 %14, ptr %7, align 4
-  %15 = load i32, ptr %2, align 4
-  %16 = load i32, ptr %3, align 4
+  %15 = load i32, ptr %6, align 4
+  %16 = load i32, ptr %7, align 4
   %17 = and i32 %15, %16
   store i32 %17, ptr %8, align 4
   %18 = load i32, ptr %8, align 4
