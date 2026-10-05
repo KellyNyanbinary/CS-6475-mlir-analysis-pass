@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 # C is enabled although no C is compiled here: HandleLLVMOptions probes flags
 # with check_c_compiler_flag, and hard-errors if the C compiler is unknown.
-project(ZeroAnalysis LANGUAGES C CXX)
+project(ExtExtSignAnalysis LANGUAGES C CXX)
+
+# Export compile_commands.json for clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #===----------------------------------------------------------------------===#
 # Locate MLIR
@@ -95,18 +98,18 @@ add_definitions(${LLVM_DEFINITIONS})
 # that dlopens it.  Linking MLIR's static libraries in here instead would
 # duplicate every cl::opt and dialect registry, which fails at load time.
 #
-# The resulting file is ZeroAnalysis.dylib on macOS and ZeroAnalysis.so on
+# The resulting file is ExtExtSignAnalysis.dylib on macOS and ExtExtSignAnalysis.so on
 # Linux and WSL2.  Nothing in this project should spell that suffix out;
-# ask CMake via $<TARGET_FILE:ZeroAnalysis>, or let run.sh probe for it.
+# ask CMake via $<TARGET_FILE:ExtExtSignAnalysis>, or let run.sh probe for it.
 #===----------------------------------------------------------------------===#
-add_llvm_library(ZeroAnalysis MODULE PARTIAL_SOURCES_INTENDED
+add_llvm_library(ExtExtSignAnalysis MODULE PARTIAL_SOURCES_INTENDED
         ExtExtSignAnalysis.cpp
   Annotate.cpp
   Plugin.cpp
   PLUGIN_TOOL mlir-opt
 )
 
-set_target_properties(ZeroAnalysis PROPERTIES
+set_target_properties(ExtExtSignAnalysis PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 #===----------------------------------------------------------------------===#
@@ -133,10 +136,10 @@ if(MLIR_OPT_EXECUTABLE)
   endif()
 
   enable_testing()
-  add_test(NAME zero-analysis
+  add_test(NAME ext-ext-sign-analysis
     COMMAND ${CMAKE_COMMAND}
       -DMLIR_OPT=${MLIR_OPT_EXECUTABLE}
-      -DPLUGIN=$<TARGET_FILE:ZeroAnalysis>
+      -DPLUGIN=$<TARGET_FILE:ExtExtSignAnalysis>
       -DINPUT=${CMAKE_CURRENT_SOURCE_DIR}/test/zero.mlir
       -DCHECKS=${CMAKE_CURRENT_SOURCE_DIR}/test/zero.expected
       -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/RunTest.cmake)

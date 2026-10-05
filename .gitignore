@@ -78,3 +78,5 @@ Testing/
 
 # Analysis output
 /output.mlir
+/sqlite*.mlir
+/zero*.mlir

@@ -26,10 +26,10 @@ struct ExtExtSignAnalysisPass
     : PassWrapper<ExtExtSignAnalysisPass, OperationPass<ModuleOp>> {
   MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ExtExtSignAnalysisPass)
 
-  StringRef getArgument() const final { return "zero-analysis"; }
+  StringRef getArgument() const final { return "ext-ext-sign-analysis"; }
 
   StringRef getDescription() const final {
-    return "Determine which integer values are known zero or known nonzero";
+    return "Determine the sign of integer values";
   }
 
   void runOnOperation() override {
@@ -45,7 +45,7 @@ struct ExtExtSignAnalysisPass
     solver.load<extextsign::ExtExtSignAnalysis>();
 
     if (failed(solver.initializeAndRun(getOperation()))) {
-      getOperation().emitError("zero analysis failed to reach a fixed point");
+      getOperation().emitError("ext-ext-sign-analysis analysis failed to reach a fixed point");
       return signalPassFailure();
     }
 
@@ -79,6 +79,6 @@ struct ExtExtSignAnalysisPass
 extern "C" LLVM_ATTRIBUTE_WEAK PassPluginLibraryInfo mlirGetPassPluginInfo() {
   // LLVM_VERSION_STRING is baked in at compile time and checked by mlir-opt at
   // load time, which is what turns an ABI mismatch into a clear diagnostic.
-  return {MLIR_PLUGIN_API_VERSION, "ZeroAnalysis", LLVM_VERSION_STRING,
+  return {MLIR_PLUGIN_API_VERSION, "ExtExtSignAnalysis", LLVM_VERSION_STRING,
           []() { PassRegistration<ExtExtSignAnalysisPass>(); }};
 }

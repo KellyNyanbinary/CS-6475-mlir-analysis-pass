@@ -3,15 +3,15 @@
 #
 #   ./run.sh input.mlir
 #
-# The plugin is ZeroAnalysis.dylib on macOS and ZeroAnalysis.so on Linux and
-# WSL2, so probe for it rather than hard-coding a suffix.  Set PLUGIN or
-# BUILD_DIR to override.
+# The plugin is ExtExtSignAnalysis.dylib on macOS and ExtExtSignAnalysis.so on
+# on Linux and WSL2, so probe for it rather than hard-coding a suffix.  Set
+# PLUGIN or BUILD_DIR to override.
 set -eu
 
 BUILD_DIR="${BUILD_DIR:-build}"
 
 if [ -z "${PLUGIN:-}" ]; then
-  for candidate in "$BUILD_DIR"/ZeroAnalysis.so "$BUILD_DIR"/ZeroAnalysis.dylib; do
+  for candidate in "$BUILD_DIR"/ExtExtSignAnalysis.so "$BUILD_DIR"/ExtExtSignAnalysis.dylib; do
     if [ -f "$candidate" ]; then
       PLUGIN="$candidate"
       break
@@ -32,5 +32,5 @@ fi
 # stdout is the unchanged IR and stderr is the annotated listing; send the
 # listing to this script's stdout so it can be piped or paged.
 mlir-opt --load-pass-plugin="$PLUGIN" \
-         --pass-pipeline='builtin.module(zero-analysis)' \
+         --pass-pipeline='builtin.module(ext-ext-sign-analysis)' \
          "$@" 2>&1 1>/dev/null

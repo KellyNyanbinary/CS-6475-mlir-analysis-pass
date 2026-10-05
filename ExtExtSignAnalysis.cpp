@@ -1,9 +1,9 @@
-//===- ZeroAnalysis.cpp - Transfer functions ------------------------------===//
+//===- ExtExtSignAnalysis.cpp - Transfer functions ------------------------------===//
 //
 // The transfer function: given what is known about an operation's operands,
-// state what is known about its results.  This file and ZeroDomain.h are the
-// two to replace when building a different analysis; the rest of the project
-// is scaffolding.
+// state what is known about its results.  This file and ExtExtSignDomain.h
+// are the two to replace when building a different analysis; the rest of the
+// project is scaffolding.
 //
 // There are deliberately only two rules here, one of each kind an analysis
 // needs: one that introduces facts out of nothing (constants), and one that
