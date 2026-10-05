@@ -94,14 +94,14 @@ struct ExtExtSignState {
         {Kind::Pos, Kind::Top, Kind::Pos, Kind::NNg, Kind::Top, Kind::Pos, Kind::Top, Kind::NNg, Kind::Top},
         {Kind::NPs, Kind::NPs, Kind::Top, Kind::NPs, Kind::NPs, Kind::Top, Kind::NPs, Kind::Top, Kind::Top},
         {Kind::NNg, Kind::Top, Kind::NNg, Kind::NNg, Kind::Top, Kind::NNg, Kind::Top, Kind::NNg, Kind::Top},
-        {Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top},
+        {Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top}
     };
     // clang-format on
 
     int lhs_index = static_cast<int>(lhs.kind);
     int rhs_index = static_cast<int>(rhs.kind);
     return join_table[lhs_index][rhs_index];
-  };
+  }
 
   bool operator==(const ExtExtSignState &other) const {
     return kind == other.kind;
